@@ -498,7 +498,9 @@ class Unet_const:
             for i in range(min(self.levels, 4)):
                 j = 0 if i < 2 else 1
                 encoder_pool = vgg16.get_layer('block' + str(i + 1) + '_pool').output
+                encoder_pool._name = self.pretatrain_net + encoder_pool._name
                 encoder = vgg16.get_layer('block' + str(i + 1) + '_conv' + str(j + 2)).output
+                encoder._name = self.pretatrain_net + encoder._name
                 encoder_outs.append([encoder_pool, encoder])
 
         if self.pretatrain_net == 'vgg_19':
@@ -509,7 +511,9 @@ class Unet_const:
             for i in range(min(self.levels, 4)):
                 j = 0 if i < 2 else 2
                 encoder_pool = vgg19.get_layer('block' + str(i + 1) + '_pool').output
+                encoder_pool._name = self.pretatrain_net + encoder_pool._name
                 encoder = vgg19.get_layer('block' + str(i + 1) + '_conv' + str(j + 2)).output
+                encoder._name = self.pretatrain_net + encoder._name
                 encoder_outs.append([encoder_pool, encoder])
 
         if self.pretatrain_net == 'IncResNetV2':
@@ -523,6 +527,7 @@ class Unet_const:
             indexes = ((0, 1), (9, 10), (16, 17), (260, 273))
             for i in range(min(self.levels, 4)):
                 encoder = InceptionResNetV2.get_layer(index=indexes[i][0]).output
+                encoder._name = self.pretatrain_net + encoder._name
                 # Дополняем полученные карты 0 по перметру для выравнивания шйпов
                 if i:
                     encoder = tf.keras.layers.ZeroPadding2D(
@@ -530,6 +535,7 @@ class Unet_const:
                          self.__zero_calc__(encoder_outs[i - 1][0].shape[2] - encoder.shape[2])))(encoder)
 
                 encoder_pool = InceptionResNetV2.get_layer(index=indexes[i][1]).output
+                encoder_pool._name = self.pretatrain_net + encoder_pool._name
                 encoder_pool = tf.keras.layers.ZeroPadding2D(
                     (self.__zero_calc__(encoder.shape[1] // 2 - encoder_pool.shape[1]),
                      self.__zero_calc__(encoder.shape[2] // 2 - encoder_pool.shape[2])))(encoder_pool)
